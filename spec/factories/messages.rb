@@ -3,8 +3,10 @@
 FactoryGirl.define do
   factory :message do
     message_id "MyString"
-    sender_id "MyString"
     sender "MyString"
+    sender_id "MyString"
     content "MyText"
+    type ""
+    full_message "MyText"
   end
 end

@@ -4,4 +4,8 @@ namespace :twitter do
     puts 'finished'
   end
 
+  task :import_userstream => :environment do
+    Message.pull_tweets
+    puts 'finished tweets'
+  end
 end
