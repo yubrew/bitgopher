@@ -1,5 +1,5 @@
 class Message < ActiveRecord::Base
-  attr_accessible :content, :full_message, :message_id, :sender, :sender_id, :type
+  attr_accessible :content, :full_message, :message_id, :parsed, :sender, :sender_id, :type
 
   scope :dms, where(type: 'dm')
   scope :tweets, where(type: 'tweet')
@@ -33,6 +33,5 @@ class Message < ActiveRecord::Base
       end
     end
   end
-
 
 end

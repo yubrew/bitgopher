@@ -8,5 +8,6 @@ FactoryGirl.define do
     content "MyText"
     type ""
     full_message "MyText"
+    parsed false
   end
 end
