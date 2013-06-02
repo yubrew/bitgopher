@@ -1,5 +1,7 @@
 class Message < ActiveRecord::Base
   attr_accessible :content, :full_message, :is_transaction, :message_id, :message_type, :parsed, :sender, :sender_id
+  validates :content, :full_message, :message_id, :message_type, :sender, :sender_id, presence: true
+  validates :message_id, uniqueness: true
 
   scope :twitter_dms, where(type: 'twitter_dm')
   scope :twitter_tweets, where(type: 'twitter_tweet')
@@ -12,7 +14,7 @@ class Message < ActiveRecord::Base
           content: dm.text,
           sender: dm.sender.name,
           sender_id: dm.sender.id.to_s,
-          type: 'twitter_dm',
+          message_type: 'twitter_dm',
           full_message: dm
         )
       end
@@ -27,11 +29,32 @@ class Message < ActiveRecord::Base
           content: tweet.text,
           sender: tweet.user.name,
           sender_id: tweet.user.id.to_s,
-          type: 'twitter_tweet',
+          message_type: 'twitter_tweet',
           full_message: tweet
         )
       end
     end
   end
 
+  def parse
+    #check if sender / sender_id is a valid user
+    @sender = User.where(handle: self.sender, messaging_id: self.sender_id)
+    if self.message_type == 'twitter_dm' && ['GETACCOUNTINFO','WITHDRAW','ACCEPT'].include?(self.content)
+      #create info request
+    elsif self.message_type == 'twitter_tweet'
+    end
+
+    #check if sender / sender_id is a valid user
+    #check if transaction
+    #check if bitcoin_transaction
+    #transaction = Transaction.new(from_user: from_user, to_user: to_user, message_id: self.id, amount_in_btc: BigDecimal.new(btc))
+    #if transaction.save
+      #self.is_transaction = true
+      #self.save
+    #end
+    self.parsed = true
+  end
+
+  def remove_old_non_transaction_messages
+  end
 end
