@@ -1,5 +1,11 @@
 require 'spec_helper'
 
 describe Message do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe 'parse message' do
+    specify 'raise parse flag' do
+      m = FactoryGirl.create(:message)
+      m.parse
+      m.parsed.should eq true
+    end
+  end
 end
