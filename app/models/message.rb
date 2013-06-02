@@ -1,8 +1,8 @@
 class Message < ActiveRecord::Base
   attr_accessible :content, :full_message, :is_transaction, :message_id, :message_type, :parsed, :sender, :sender_id
 
-  scope :dms, where(type: 'dm')
-  scope :tweets, where(type: 'tweet')
+  scope :twitter_dms, where(type: 'twitter_dm')
+  scope :twitter_tweets, where(type: 'twitter_tweet')
 
   def self.pull_messages_from_twitter
     Twitter.direct_messages(since_id: Message.dms.maximum(:message_id)).each do |dm|
@@ -12,7 +12,7 @@ class Message < ActiveRecord::Base
           content: dm.text,
           sender: dm.sender.name,
           sender_id: dm.sender.id.to_s,
-          type: 'dm',
+          type: 'twitter_dm',
           full_message: dm
         )
       end
@@ -27,7 +27,7 @@ class Message < ActiveRecord::Base
           content: tweet.text,
           sender: tweet.user.name,
           sender_id: tweet.user.id.to_s,
-          type: 'tweet',
+          type: 'twitter_tweet',
           full_message: tweet
         )
       end
