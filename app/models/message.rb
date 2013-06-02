@@ -1,5 +1,7 @@
 class Message < ActiveRecord::Base
   attr_accessible :content, :full_message, :is_transaction, :message_id, :message_type, :parsed, :sender, :sender_id
+  validates :content, :full_message, :message_id, :message_type, :sender, :sender_id, presence: true
+  validates :message_id, uniqueness: true
 
   scope :twitter_dms, where(type: 'twitter_dm')
   scope :twitter_tweets, where(type: 'twitter_tweet')
@@ -34,4 +36,11 @@ class Message < ActiveRecord::Base
     end
   end
 
+  def parse
+    #check if transaction
+    self.parsed = true
+  end
+
+  def remove_old_non_transaction_messages
+  end
 end
