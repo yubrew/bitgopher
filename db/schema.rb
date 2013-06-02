@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130531034909) do
+ActiveRecord::Schema.define(:version => 20130602043127) do
 
   create_table "messages", :force => true do |t|
     t.string   "message_id",                        :null => false
@@ -24,6 +24,26 @@ ActiveRecord::Schema.define(:version => 20130531034909) do
     t.boolean  "is_transaction", :default => false
     t.datetime "created_at",                        :null => false
     t.datetime "updated_at",                        :null => false
+  end
+
+  create_table "transactions", :force => true do |t|
+    t.integer  "message_id",    :null => false
+    t.integer  "from_user",     :null => false
+    t.integer  "to_user",       :null => false
+    t.string   "status",        :null => false
+    t.decimal  "amount_in_btc", :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  create_table "users", :force => true do |t|
+    t.string   "handle"
+    t.string   "messaging_id"
+    t.decimal  "balance"
+    t.string   "btc_address"
+    t.boolean  "confirmed"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
   end
 
 end
