@@ -2,10 +2,10 @@
 
 FactoryGirl.define do
   factory :transaction do
-    message_id "MyString"
-    from_user_handle "MyString"
-    to_user_handle "MyString"
+    message_id 1
+    from_user 1
+    to_user 1
     status "MyString"
-    amount_in_btc "MyString"
+    amount_in_btc "9.99"
   end
 end

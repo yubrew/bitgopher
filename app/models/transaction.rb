@@ -1,18 +1,13 @@
 class Transaction < ActiveRecord::Base
-  attr_accessible :amount_in_btc, :from_user_handle, :message_id, :status, :to_user_handle
+  attr_accessible :amount_in_btc, :from_user, :message_id, :status, :to_user
+  belongs_to :message
+  belongs_to :from_user, class: 'User'
+  belongs_to :to_user, class: 'User'
+  validates :amount_in_btc, :from_user, :message_id, :status, :to_user, presence: true
+  before_validation :check_for_positive_balance
 
-  validates :amount_in_btc, :from_user_handle, :message_id, :status, :to_user_handle, presence: :true
-  before_validation :check_positive_balance, :check_to_user_exists
-
-  def from_user
-    User.find(handle: self.from_user_handle)
-  end
-
-  def to_user
-    User.find(handle: self.to_user_handle)
-  end
-
-  def check_positive_balance
-    self.from_user.available_balance > amount_in_btc
+  private
+  def check_for_positive_balance
+    self.from_user.available_balance - self.amount_in_btc >= 0.0
   end
 end
