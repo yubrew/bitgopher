@@ -8,4 +8,5 @@ namespace :twitter do
     Message.pull_tweets
     puts 'finished tweets'
   end
+
 end
