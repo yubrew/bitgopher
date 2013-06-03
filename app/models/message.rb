@@ -1,6 +1,6 @@
 class Message < ActiveRecord::Base
-  attr_accessible :content, :full_message, :is_transaction, :message_id, :message_type, :parsed, :sender, :sender_id
-  validates :content, :full_message, :message_id, :message_type, :sender, :sender_id, presence: true
+  attr_accessible :content, :full_message, :is_transaction, :message_id, :message_type, :parsed, :sender
+  validates :content, :full_message, :message_id, :message_type, :sender, presence: true
   validates :message_id, uniqueness: true
 
   scope :twitter_dms, where(type: 'twitter_dm')
@@ -13,7 +13,6 @@ class Message < ActiveRecord::Base
           message_id: dm.id.to_s,
           content: dm.text,
           sender: dm.sender.name,
-          sender_id: dm.sender.id.to_s,
           message_type: 'twitter_dm',
           full_message: dm
         )
@@ -28,7 +27,6 @@ class Message < ActiveRecord::Base
           message_id: tweet.id.to_s,
           content: tweet.text,
           sender: tweet.user.name,
-          sender_id: tweet.user.id.to_s,
           message_type: 'twitter_tweet',
           full_message: tweet
         )
@@ -38,8 +36,8 @@ class Message < ActiveRecord::Base
 
   def parse
     #check if sender / sender_id is a valid user
-    @sender = User.where(handle: self.sender, messaging_id: self.sender_id)
     if self.message_type == 'twitter_dm' && ['GETACCOUNTINFO','WITHDRAW','ACCEPT'].include?(self.content)
+    @sender = User.where(handle: self.sender)
       #create info request
     elsif self.message_type == 'twitter_tweet'
     end

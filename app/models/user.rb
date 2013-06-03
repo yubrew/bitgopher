@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
-  attr_accessible :balance, :btc_address, :confirmed, :handle, :messaging_id
-  validates :balance, :btc_address, :confirmed, :handle, :messaging_id, presence: true
+  attr_accessible :balance, :btc_address, :confirmed, :handle
+  validates :balance, :btc_address, :confirmed, :handle, presence: true
   validates :handle, uniqueness: true
   has_many :transactions
   has_many :bitcoin_transactions
