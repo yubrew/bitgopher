@@ -16,7 +16,7 @@ class User < ActiveRecord::Base
 
   private
   def get_bitcoin_address
-    new_bitcoin_address = bitcoind.getnewaddress(handle)
+    new_bitcoin_address =  '19YPrPAQdjwEsT2QnbvhVnyEuyXWxSL2Hq' #add bitcoind implementation to create new address bitcoind.getnewaddress(handle)
     if new_bitcoin_address == 'error'
       nil
     else

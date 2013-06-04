@@ -20,6 +20,22 @@ describe Message do
       specify 'new to_user, creates user' do
       end
 
+      specify "new transaction with +tip @user 1 btc" do
+        m = FactoryGirlDefaultMethods.default_transaction_message
+        m.parse
+        Transaction.where(message_id: m.message_id).count.should eq 1
+      end
+
+      pending specify "new transaction with +tip @user 0.001 btc" do
+        m = FactoryGirlDefaultMethods.default_transaction_message
+        m.parse
+        Transaction.where(message_id: m.message_id).count.should eq 1
+      end
+
+      specify '+tip 1 btc reply, creates transaction' do
+        #FactoryGirl.create(:message, content: '+tip 1 btc', full_message:'')
+      end
+
       specify 'unparsable, nothing happens' do
       end
     end

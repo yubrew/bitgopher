@@ -1,3 +1,18 @@
+module FactoryGirlDefaultMethods
+  include FactoryGirl::Syntax::Methods
+  extend self
+
+  def default_info_message
+    default_content = 'GETACCOUNTINFO'
+    Message.find_by_content(default_content) || FactoryGirl.create(:message, content: default_content, message_type: 'twitter_dm')
+  end
+
+  def default_transaction_message
+    default_content = '+tip @yubrew 1 btc'
+    Message.find_by_content(default_content) || FactoryGirl.create(:message, :content=>default_content, message_type: 'twitter_tweet')
+  end
+
+end
 FactoryGirl.define do
 
   sequence :message_id do |n|

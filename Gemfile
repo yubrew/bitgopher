@@ -24,8 +24,12 @@ gem 'twitter'
 gem 'figaro'
 
 # -- Ruby/Rails Console --
-gem 'pry-rails'
-gem 'pry-doc'
+group :test, :development do
+  gem 'pry-rails'
+  gem 'pry-doc'
+  gem 'pry-nav'
+  gem 'pry'
+end
 
 # -- Development --
 group :development do
@@ -38,4 +42,5 @@ group :development, :test do
   gem 'rspec-rails', '~> 2.13.0'
   gem 'factory_girl_rails', '~> 4.2.1'
   gem 'database_cleaner', '~> 1.0.1'
+  gem 'faker'
 end

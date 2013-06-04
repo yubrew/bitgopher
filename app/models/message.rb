@@ -35,21 +35,40 @@ class Message < ActiveRecord::Base
   end
 
   def parse
-    #check if sender / sender_id is a valid user
-    if self.message_type == 'twitter_dm' && ['GETACCOUNTINFO','WITHDRAW','ACCEPT'].include?(self.content)
+    #check if sender is a valid user
     @sender = User.where(handle: self.sender)
+    if self.message_type == 'twitter_dm' && ['GETACCOUNTINFO'].include?(self.content)
       #create info request
-    elsif self.message_type == 'twitter_tweet'
+      self.is_transaction = true
+      self.save
+    else
+
+      #check transaction
+      if self.message_type == 'twitter_tweet' && self.content =~ /\+tip @(\w+) (\d\.*\d*) btc/
+        to_user_handle = $1
+        bitcoin_amount = $2
+
+        transaction = Transaction.new(from_user: User.find_by_handle(sender), to_user: User.find_by_handle(to_user_handle), message_id: self.id, amount_in_btc: BigDecimal.new(bitcoin_amount))
+
+        binding.pry
+        if transaction.save
+          self.is_transaction = true
+          self.save
+        end
+
+      end
+
+      #check bitcoin_transaction
+      if self.message_type == 'twitter_dm' && ['DEPOSIT','WITHDRAW'].include?(self.content)
+
+        #bitcoin_transaction = BitcoinTransaction.new
+        #if bitcoin_transaction.save
+        #self.is_transaction = true
+        #self.save
+      end
+
     end
 
-    #check if sender / sender_id is a valid user
-    #check if transaction
-    #check if bitcoin_transaction
-    #transaction = Transaction.new(from_user: from_user, to_user: to_user, message_id: self.id, amount_in_btc: BigDecimal.new(btc))
-    #if transaction.save
-      #self.is_transaction = true
-      #self.save
-    #end
     self.parsed = true
   end
 
