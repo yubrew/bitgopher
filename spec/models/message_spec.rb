@@ -1,16 +1,35 @@
 require 'spec_helper'
 
 describe Message do
+
   describe 'parse message' do
-    specify 'raise parse flag' do
-      m = FactoryGirl.create(:message)
-      m.parse
-      m.parsed.should eq true
+
+    context 'non-transaction message' do
+
+      before(:each) do
+        @m = FactoryGirl.create(:message)
+        @m.parse
+      end
+
+      specify { @m.parsed.should eq true }
+
+      specify { @m.is_transaction.should eq false }
+
     end
 
     context 'info request' do
-      specify 'valid message creates info request' do
+
+      before do
+        @m = FactoryGirl.create(:info_message)
+        @m.parse
       end
+
+      specify do
+        @m.parsed.should eq true
+        @m.is_transaction.should eq true
+      end
+
+      # message created, to be sent to user
     end
 
     context 'transaction' do
@@ -21,15 +40,15 @@ describe Message do
       end
 
       specify "new transaction with +tip @user 1 btc" do
-        m = FactoryGirlDefaultMethods.default_transaction_message
+        m = FactoryGirl.create(:transaction_message)
         m.parse
-        Transaction.where(message_id: m.message_id).count.should eq 1
+        Transaction.where(message_id: m.id).first.message.should eq m
       end
 
-      pending specify "new transaction with +tip @user 0.001 btc" do
-        m = FactoryGirlDefaultMethods.default_transaction_message
+      specify "new transaction with +tip @user 0.001 btc" do
+        m = FactoryGirl.create(:transaction_message, content: '+tip @user 0.001 btc')
         m.parse
-        Transaction.where(message_id: m.message_id).count.should eq 1
+        Transaction.where(message_id: m.id).first.message.should eq m
       end
 
       specify '+tip 1 btc reply, creates transaction' do

@@ -1,39 +1,44 @@
-module FactoryGirlDefaultMethods
-  include FactoryGirl::Syntax::Methods
-  extend self
-
-  def default_info_message
-    default_content = 'GETACCOUNTINFO'
-    Message.find_by_content(default_content) || FactoryGirl.create(:message, content: default_content, message_type: 'twitter_dm')
-  end
-
-  def default_transaction_message
-    default_content = '+tip @yubrew 1 btc'
-    Message.find_by_content(default_content) || FactoryGirl.create(:message, :content=>default_content, message_type: 'twitter_tweet')
-  end
-
-end
 FactoryGirl.define do
 
   sequence :message_id do |n|
     "message#{n}"
   end
 
+  sequence :handle do |n|
+    "#{Faker::Internet.user_name}#{n}"
+  end
+
   factory :user do
-    handle { Faker::Internet.user_name }
+    handle { generate :handle }
     balance BigDecimal.new('9.99')
     btc_address "MyString"
     confirmed false
   end
 
-  factory :message do
-    message_id { generate :message_id }
-    sender "MyString"
-    content "MyText"
-    message_type "MyString"
-    full_message "MyText"
-    parsed false
-    is_transaction false
+  factory :message do |f|
+    f.message_id { generate :message_id }
+    f.sender { FactoryGirl.create(:user).handle }
+    f.content "some message here"
+    f.message_type 'tweet_dm'
+    f.full_message "MyText"
+    f.parsed false
+    f.is_transaction false
+
+    factory :info_message do
+      message_type 'twitter_dm'
+      content 'GETACCOUNTINFO'
+    end
+
+    factory :transaction_message do
+      message_type 'twitter_tweet'
+      content '+tip @user 1 btc'
+    end
+
+    factory :bitcoin_transaction_message do
+      message_type 'twitter_dm'
+      content 'WITHDRAWALL 19YPrPAQdjwEsT2QnbvhVnyEuyXWxSL2Hq'
+    end
+
   end
 
   factory :transaction do |f|

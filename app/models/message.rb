@@ -2,6 +2,7 @@ class Message < ActiveRecord::Base
   attr_accessible :content, :full_message, :is_transaction, :message_id, :message_type, :parsed, :sender
   validates :content, :full_message, :message_id, :message_type, :sender, presence: true
   validates :message_id, uniqueness: true
+  before_validation :squeeze_whitespace
 
   scope :twitter_dms, where(type: 'twitter_dm')
   scope :twitter_tweets, where(type: 'twitter_tweet')
@@ -36,35 +37,40 @@ class Message < ActiveRecord::Base
 
   def parse
     #check if sender is a valid user
-    @sender = User.where(handle: self.sender)
-    if self.message_type == 'twitter_dm' && ['GETACCOUNTINFO'].include?(self.content)
-      #create info request
-      self.is_transaction = true
-      self.save
-    else
+    if User.where(handle: self.sender).first
+      if self.message_type == 'twitter_dm' && ['GETACCOUNTINFO'].include?(self.content)
+        #create info request
+        self.is_transaction = true
+        self.save
+      else
 
-      #check transaction
-      if self.message_type == 'twitter_tweet' && self.content =~ /\+tip @(\w+) (\d\.*\d*) btc/
-        to_user_handle = $1
-        bitcoin_amount = $2
+        #check transaction
+        if self.message_type == 'twitter_tweet' && self.content =~ /\+tip @(\w+) (\d\.*\d*) btc/
+          to_user_handle = $1
+          bitcoin_amount = $2
 
-        transaction = Transaction.new(from_user: User.find_by_handle(sender), to_user: User.find_by_handle(to_user_handle), message_id: self.id, amount_in_btc: BigDecimal.new(bitcoin_amount))
+          t = Transaction.new(amount_in_btc: BigDecimal.new(bitcoin_amount))
+          t.from_user_id = User.find_by_handle(sender).try(:id)
+          t.to_user_id = User.find_by_handle(to_user_handle).try(:id)
+          t.message_id = self.id
+          t.status = 'pending'
 
-        binding.pry
-        if transaction.save
-          self.is_transaction = true
-          self.save
+          if t.save
+            self.is_transaction = true
+            self.save
+          end
+
         end
 
-      end
+        #check bitcoin_transaction
+        if self.message_type == 'twitter_dm' && ['DEPOSIT','WITHDRAW'].include?(self.content)
 
-      #check bitcoin_transaction
-      if self.message_type == 'twitter_dm' && ['DEPOSIT','WITHDRAW'].include?(self.content)
+          #bitcoin_transaction = BitcoinTransaction.new
+          #if bitcoin_transaction.save
+          #self.is_transaction = true
+          #self.save
+        end
 
-        #bitcoin_transaction = BitcoinTransaction.new
-        #if bitcoin_transaction.save
-        #self.is_transaction = true
-        #self.save
       end
 
     end
@@ -73,5 +79,11 @@ class Message < ActiveRecord::Base
   end
 
   def remove_old_non_transaction_messages
+  end
+
+  private
+  def squeeze_whitespace
+    self.content.squeeze!(' ')
+
   end
 end
