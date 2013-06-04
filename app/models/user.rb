@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   attr_accessible :balance, :btc_address, :confirmed, :handle
-  validates :balance, :btc_address, :confirmed, :handle, presence: true
+  validates :balance, :btc_address, :handle, presence: true
+  validates :confirmed, inclusion: {in: [true, false], message: 'requires true or false value'}, on: :create
   validates :handle, uniqueness: true
   has_many :transactions
   has_many :bitcoin_transactions

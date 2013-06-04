@@ -1,28 +1,20 @@
 class Transaction < ActiveRecord::Base
-  attr_accessible :amount_in_btc, :from_user, :message_id, :status, :to_user
   belongs_to :message
   belongs_to :from_user, class_name: 'User'
   belongs_to :to_user, class_name: 'User'
-  validates :amount_in_btc, :from_user, :message_id, :status, :to_user, presence: true
-  before_validation :check_users_exist#, :check_duplicate_transaction, :check_for_positive_balance
+  attr_accessible :amount_in_btc, :status
+  validates :amount_in_btc, :status, :message_id, :from_user_id, presence: true
+  before_validation :check_from_user_exists#, :check_duplicate_transaction, :check_for_positive_balance
 
   private
-  def check_users_exist
-    if self.from_user
-      @u = User.where(handle: self.to_user_handle).first_or_create
-      if @u.save
-        true
-      else
-        false
-      end
-    else
-      errors.add(:from_user, 'does not exist')
-      false
+  def check_from_user_exists
+    if self.from_user.blank?
+      errors.add(:sender, 'does not exist')
     end
   end
 
   def check_duplicate_transaction
-    t = Transaction.where(from_user: self.from_user, to_user: self.to_user, message: :message_id)
+    t = Transaction.where(from_user: :from_user_id, message: :message_id)
     t.blank?
   end
 
