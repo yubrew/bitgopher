@@ -19,6 +19,13 @@ FactoryGirl.define do
     "message#{n}"
   end
 
+  factory :user do
+    handle { Faker::Internet.user_name }
+    balance BigDecimal.new('9.99')
+    btc_address "MyString"
+    confirmed false
+  end
+
   factory :message do
     message_id { generate :message_id }
     sender "MyString"
@@ -29,19 +36,12 @@ FactoryGirl.define do
     is_transaction false
   end
 
-  factory :transaction do
-    message_id 1
-    from_user 1
-    to_user 1
-    status "MyString"
-    amount_in_btc "9.99"
-  end
-
-  factory :user do
-    handle "MyString"
-    balance "9.99"
-    btc_address "MyString"
-    confirmed false
+  factory :transaction do |f|
+    f.association :message
+    f.association :from_user, factory: :user
+    f.association :to_user, factory: :user
+    f.status "MyString"
+    f.amount_in_btc BigDecimal.new('9.99')
   end
 
 end
