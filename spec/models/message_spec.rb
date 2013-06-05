@@ -17,22 +17,35 @@ describe Message do
 
     end
 
-    context 'info request' do
+    context 'GETACCOUNTINFO info request' do
 
-      before do
+      before(:each) do
         @m = FactoryGirl.create(:info_message)
         @m.parse
       end
 
-      specify do
-        @m.parsed.should eq true
-        @m.is_transaction.should eq true
-      end
+      specify { @m.parsed.should eq true }
+
+      specify { @m.is_transaction.should eq true }
 
       # message created, to be sent to user
     end
 
-    context 'transaction' do
+    pending context 'HISTORY info request' do
+
+      before(:each) do
+        @m = FactoryGirl.create(:info_message, content: 'HISTORY')
+        @m.parse
+      end
+
+      specify { @m.parsed.should eq true }
+
+      specify { @m.is_transaction.should eq true }
+
+      # correct message created, to be sent to user
+    end
+
+    context 'transaction message' do
       specify 'both users in system, new transaction created' do
       end
 
@@ -51,15 +64,18 @@ describe Message do
         Transaction.where(message_id: m.id).first.message.should eq m
       end
 
-      specify '+tip 1 btc reply, creates transaction' do
-        #FactoryGirl.create(:message, content: '+tip 1 btc', full_message:'')
+      pending specify '+tip 1 btc reply, creates transaction' do
+        m = FactoryGirl.create(:message, content: '+tip 1 btc')
+        m.parse
+        #Transaction.where(message_id: m.id).count.should eq 1
+        #Transaction.where(message_id: m.id).first.message.should eq m
       end
 
       specify 'unparsable, nothing happens' do
       end
     end
 
-    context 'bitcoin_transaction' do
+    context 'bitcoin_transaction message' do
       context 'withdrawal' do
 
         specify 'valid withdrawal' do
